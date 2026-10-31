@@ -1,10 +1,19 @@
 # ATVLoadly Android
 
-Android companion project for exploring Apple TV IPA sideloading over Wi-Fi.
+Android companion project for an IPA manager targeting Apple TV and iPhone/iPad.
 
-## Status
+## Current progress
 
-This repository currently contains an Android build scaffold and UI prototype. It does **not yet** implement Apple TV pairing, IPA signing, or installation. Those capabilities require porting/integrating the atvloadly/PlumeImpactor core and validating it against real Apple TV hardware.
+- Android UI prototype with target selection (Apple TV / iPhone / iPad).
+- Android system file picker for selecting an IPA.
+- Input fields for an Apple TV address and pairing PIN.
+- Basic validation/status messages.
+
+**Not implemented yet:** Apple TV pairing/install backend, IPA signing, and iPhone/iPad installation. The app currently does not install any IPA. The Apple TV and iOS/iPadOS flows require different backends and must be tested on real devices.
+
+## iPhone / iPad constraints
+
+IPA installation requires a valid Apple-issued signature and a compatible installation path. A plain IPA file cannot simply be copied into iOS and installed by an Android app. The signing/install workflow must be implemented separately; free Apple development signing also has restrictions and expiry.
 
 ## Build
 
