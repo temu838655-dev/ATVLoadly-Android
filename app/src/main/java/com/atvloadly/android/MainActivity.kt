@@ -1,6 +1,6 @@
 package com.atvloadly.android
 
-import android.app.Activity
+import androidx.activity.ComponentActivity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -14,7 +14,7 @@ import android.widget.ScrollView
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 
-class MainActivity : Activity() {
+class MainActivity : ComponentActivity() {
     private var selectedIpa: Uri? = null
     private var selectedP12: Uri? = null
     private var selectedProfile: Uri? = null
@@ -195,7 +195,7 @@ class MainActivity : Activity() {
 
     private fun edit(hintText: String) = EditText(this).apply {
         hint = hintText
-        singleLine = true
+        setSingleLine(true)
         setTextColor(Color.WHITE)
         setHintTextColor(0xFF8C9BB3.toInt())
         setPadding(dp(12), dp(10), dp(12), dp(10))
@@ -203,7 +203,10 @@ class MainActivity : Activity() {
     }
 
     private fun space(height: Int) = TextView(this).apply {
-        height = dp(height)
+        layoutParams = LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            dp(height)
+        )
     }
 
     private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
