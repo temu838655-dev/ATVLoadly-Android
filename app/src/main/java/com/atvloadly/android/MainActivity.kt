@@ -16,11 +16,16 @@ import androidx.activity.result.contract.ActivityResultContracts
 
 class MainActivity : Activity() {
     private var selectedIpa: Uri? = null
+    private var selectedP12: Uri? = null
+    private var selectedProfile: Uri? = null
     private var target = Target.APPLE_TV
     private lateinit var fileLabel: TextView
     private lateinit var targetLabel: TextView
     private lateinit var addressInput: EditText
     private lateinit var pinInput: EditText
+    private lateinit var certificateLabel: TextView
+    private lateinit var profileLabel: TextView
+    private lateinit var certificatePassword: EditText
     private lateinit var status: TextView
 
     private enum class Target { APPLE_TV, IPHONE_IPAD }
@@ -32,6 +37,22 @@ class MainActivity : Activity() {
             val name = uri.lastPathSegment?.substringAfterLast('/') ?: "IPA đã chọn"
             fileLabel.text = "Đã chọn: $name"
             status.text = "Đã nhận tệp IPA. Chưa ký hoặc cài đặt."
+        }
+    }
+
+    private val p12Picker = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) {
+            selectedP12 = uri
+            certificateLabel.text = "Đã chọn chứng chỉ P12"
+            status.text = "Đã chọn P12. Chưa nhập hoặc gửi chứng chỉ đi đâu."
+        }
+    }
+
+    private val profilePicker = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) {
+            selectedProfile = uri
+            profileLabel.text = "Đã chọn provisioning profile"
+            status.text = "Đã chọn profile. Chưa kiểm tra thiết bị/loại profile."
         }
     }
 
@@ -83,6 +104,24 @@ class MainActivity : Activity() {
         pinInput = edit("Mã ghép đôi Apple TV (nếu cần)")
         content.addView(pinInput)
         content.addView(space(8))
+        content.addView(text("Chứng chỉ (tùy chọn)", 16, Color.WHITE, true))
+        content.addView(space(6))
+        content.addView(button("Chọn chứng chỉ .P12") {
+            p12Picker.launch(arrayOf("application/x-pkcs12", "application/octet-stream", "*/*"))
+        })
+        certificateLabel = text("Chưa chọn P12", 14, 0xFFD9E2F1.toInt())
+        content.addView(certificateLabel)
+        content.addView(space(6))
+        content.addView(button("Chọn provisioning profile") {
+            profilePicker.launch(arrayOf("application/octet-stream", "*/*"))
+        })
+        profileLabel = text("Chưa chọn profile", 14, 0xFFD9E2F1.toInt())
+        content.addView(profileLabel)
+        content.addView(space(6))
+        certificatePassword = edit("Mật khẩu P12 (nếu có)")
+        certificatePassword.inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
+        content.addView(certificatePassword)
+        content.addView(space(8))
         content.addView(button("Tiếp tục") { validateAndExplain() })
         content.addView(space(16))
 
@@ -122,7 +161,13 @@ class MainActivity : Activity() {
             status.text = "Hãy chọn tệp IPA trước."
             return
         }
-        status.text = if (target == Target.APPLE_TV) {
+        status.text = if (selectedP12 != null && selectedProfile != null) {
+            if (target == Target.APPLE_TV) {
+                "Đã chọn IPA, P12 và profile. Chưa thể cài: cần backend ký/cài tvOS."
+            } else {
+                "Đã chọn IPA, P12 và profile. Chưa thể cài: cần backend ký/cài iOS/iPadOS."
+            }
+        } else if (target == Target.APPLE_TV) {
             "Đã chọn IPA. Chưa thể cài: backend ghép đôi và cài Apple TV chưa được tích hợp."
         } else {
             "Đã chọn IPA. Chưa thể cài: cần ký IPA và tích hợp phương thức cài iPhone/iPad."
